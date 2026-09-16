@@ -1,0 +1,246 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/database/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isSuperAdmin() {
+      return isAuthenticated() && (
+        request.auth.token.role == 'SUPER_ADMIN' ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'SUPER_ADMIN')
+      );
+    }
+
+    function userInstitutionId() {
+      return request.auth.token.institution_id != null ?
+        request.auth.token.institution_id :
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) ?
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.institution_id : null);
+    }
+
+    function belongsToInstitution(institutionId) {
+      return isAuthenticated() && (isSuperAdmin() || userInstitutionId() == institutionId);
+    }
+
+    function isDocSameInstitution(rsc) {
+      return isAuthenticated() && (isSuperAdmin() || userInstitutionId() == rsc.data.institution_id);
+    }
+
+    function isIncomingSameInstitution() {
+      return isAuthenticated() && (isSuperAdmin() || userInstitutionId() == request.resource.data.institution_id);
+    }
+
+    function isInstitutionAdmin(institutionId) {
+      return isSuperAdmin() || (
+        isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.institution_id == institutionId &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ADMIN'
+      );
+    }
+
+    // Platform Super Admin
+    match /institutions/{institutionId} {
+      allow read: if true; // Public can see basic institution listing/landing info
+      allow create, update, delete: if isSuperAdmin();
+    }
+
+    match /platform_audit_logs/{logId} {
+      allow read, write: if isSuperAdmin();
+    }
+
+    // User accounts
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (
+        request.auth.uid == userId ||
+        isSuperAdmin() ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.institution_id == resource.data.institution_id)
+      );
+      allow create: if isAuthenticated() || isSuperAdmin();
+      allow update: if isAuthenticated() && (
+        request.auth.uid == userId ||
+        isSuperAdmin() ||
+        isInstitutionAdmin(resource.data.institution_id)
+      );
+      allow delete: if isSuperAdmin() || (
+        isAuthenticated() && isInstitutionAdmin(resource.data.institution_id) && request.auth.uid != userId
+      );
+    }
+
+    // Academic & Configuration Collections
+    match /academic_years/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /terms/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /grade_levels/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /subjects/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /grade_subjects/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /assessment_types/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /custom_fields/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /institution_settings/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    // People
+    match /students/{studentId} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /staff/{staffId} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /guardians/{guardianId} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    // Academics
+    match /classes/{classId} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /enrollments/{enrollmentId} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /teaching_assignments/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /timetable/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    // Attendance
+    match /attendance/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /staff_attendance/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    // Assessment & Reporting
+    match /assessments/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /scores/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /term_results/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    // Finance
+    match /fee_categories/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /fee_structures/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /student_invoices/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /payments/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    // Communication
+    match /announcements/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /notifications/{id} {
+      allow read: if isAuthenticated() && (resource.data.user_id == request.auth.uid || isSuperAdmin());
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /message_threads/{id} {
+      allow read: if isAuthenticated() && (
+        isSuperAdmin() ||
+        (isDocSameInstitution(resource) && (request.auth.uid in resource.data.participants || isInstitutionAdmin(resource.data.institution_id)))
+      );
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /messages/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    // Tasks & Audit
+    match /tasks/{id} {
+      allow read: if isAuthenticated() && isDocSameInstitution(resource);
+      allow write: if isAuthenticated() && isIncomingSameInstitution();
+    }
+
+    match /audit_logs/{id} {
+      allow read: if isAuthenticated() && (isSuperAdmin() || isDocSameInstitution(resource));
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // Immutable audit logs
+    }
+
+    // Test connection document
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+  }
+}

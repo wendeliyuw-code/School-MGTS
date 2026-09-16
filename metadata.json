@@ -1,0 +1,6 @@
+{
+  "name": "Pre-University School Management System",
+  "description": "A complete multi-tenant Pre-University School Management System with academic tracking, attendance, grading, fee management, messaging, and multi-role access control.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

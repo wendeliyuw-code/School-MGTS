@@ -1,0 +1,254 @@
+{
+  "entities": {
+    "Institution": {
+      "title": "Institution",
+      "description": "Educational institution or school in multi-tenant environment",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "type": { "type": "string" },
+        "address": { "type": "string" },
+        "region": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "logo_url": { "type": "string" },
+        "timezone": { "type": "string" },
+        "settings": { "type": "object" },
+        "status": { "type": "string", "enum": ["active", "suspended"] }
+      },
+      "required": ["name", "code", "status"]
+    },
+    "User": {
+      "title": "User",
+      "description": "User profile associated with an institution and role",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "institution_id": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "role": { "type": "string", "enum": ["SUPER_ADMIN", "ADMIN", "TEACHER", "STUDENT", "GUARDIAN", "STAFF"] },
+        "display_name": { "type": "string" },
+        "is_active": { "type": "boolean" },
+        "email_verified": { "type": "boolean" },
+        "last_login": { "type": "string" },
+        "created_by": { "type": "string" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "Student": {
+      "title": "Student",
+      "description": "Student record enrolled in an institution",
+      "type": "object",
+      "properties": {
+        "user_id": { "type": "string" },
+        "institution_id": { "type": "string" },
+        "admission_no": { "type": "string" },
+        "first_name": { "type": "string" },
+        "middle_name": { "type": "string" },
+        "last_name": { "type": "string" },
+        "date_of_birth": { "type": "string" },
+        "gender": { "type": "string" },
+        "nationality": { "type": "string" },
+        "address": { "type": "string" },
+        "photo_url": { "type": "string" },
+        "enrollment_date": { "type": "string" },
+        "status": { "type": "string" },
+        "extra_data": { "type": "object" },
+        "guardian_ids": { "type": "array" }
+      },
+      "required": ["institution_id", "admission_no", "first_name", "last_name"]
+    },
+    "Staff": {
+      "title": "Staff",
+      "description": "Teaching or non-teaching staff member",
+      "type": "object",
+      "properties": {
+        "user_id": { "type": "string" },
+        "institution_id": { "type": "string" },
+        "staff_no": { "type": "string" },
+        "first_name": { "type": "string" },
+        "last_name": { "type": "string" },
+        "date_of_birth": { "type": "string" },
+        "gender": { "type": "string" },
+        "qualification": { "type": "string" },
+        "designation": { "type": "string" },
+        "hire_date": { "type": "string" },
+        "status": { "type": "string" },
+        "extra_data": { "type": "object" }
+      },
+      "required": ["institution_id", "staff_no", "first_name", "last_name"]
+    },
+    "Guardian": {
+      "title": "Guardian",
+      "description": "Parent or guardian linked to students",
+      "type": "object",
+      "properties": {
+        "user_id": { "type": "string" },
+        "institution_id": { "type": "string" },
+        "first_name": { "type": "string" },
+        "last_name": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "occupation": { "type": "string" },
+        "address": { "type": "string" },
+        "student_ids": { "type": "array" }
+      },
+      "required": ["institution_id", "first_name", "last_name"]
+    },
+    "AcademicYear": {
+      "title": "AcademicYear",
+      "description": "School academic year period",
+      "type": "object",
+      "properties": {
+        "institution_id": { "type": "string" },
+        "name": { "type": "string" },
+        "start_date": { "type": "string" },
+        "end_date": { "type": "string" },
+        "is_current": { "type": "boolean" }
+      },
+      "required": ["institution_id", "name"]
+    },
+    "Term": {
+      "title": "Term",
+      "description": "Academic term or semester",
+      "type": "object",
+      "properties": {
+        "institution_id": { "type": "string" },
+        "academic_year_id": { "type": "string" },
+        "name": { "type": "string" },
+        "start_date": { "type": "string" },
+        "end_date": { "type": "string" },
+        "is_current": { "type": "boolean" }
+      },
+      "required": ["institution_id", "academic_year_id", "name"]
+    },
+    "Class": {
+      "title": "Class",
+      "description": "School class cohort",
+      "type": "object",
+      "properties": {
+        "institution_id": { "type": "string" },
+        "academic_year_id": { "type": "string" },
+        "grade_level_id": { "type": "string" },
+        "name": { "type": "string" },
+        "class_teacher_id": { "type": "string" },
+        "capacity": { "type": "number" }
+      },
+      "required": ["institution_id", "name"]
+    },
+    "Attendance": {
+      "title": "Attendance",
+      "description": "Daily student attendance record",
+      "type": "object",
+      "properties": {
+        "institution_id": { "type": "string" },
+        "student_id": { "type": "string" },
+        "class_id": { "type": "string" },
+        "date": { "type": "string" },
+        "status": { "type": "string", "enum": ["present", "absent", "late", "excused"] },
+        "remarks": { "type": "string" },
+        "recorded_by": { "type": "string" }
+      },
+      "required": ["institution_id", "student_id", "class_id", "date", "status"]
+    },
+    "Score": {
+      "title": "Score",
+      "description": "Student score on an assessment",
+      "type": "object",
+      "properties": {
+        "institution_id": { "type": "string" },
+        "assessment_id": { "type": "string" },
+        "student_id": { "type": "string" },
+        "score": { "type": "number" },
+        "grade": { "type": "string" },
+        "remarks": { "type": "string" },
+        "recorded_by": { "type": "string" }
+      },
+      "required": ["institution_id", "assessment_id", "student_id", "score"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Task assigned to school staff",
+      "type": "object",
+      "properties": {
+        "institution_id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "assigned_to": { "type": "string" },
+        "assigned_by": { "type": "string" },
+        "related_entity": { "type": "object" },
+        "due_date": { "type": "string" },
+        "priority": { "type": "string", "enum": ["low", "medium", "high", "urgent"] },
+        "status": { "type": "string", "enum": ["pending", "in_progress", "done"] }
+      },
+      "required": ["institution_id", "title", "assigned_to", "status"]
+    },
+    "MessageThread": {
+      "title": "MessageThread",
+      "description": "Communication thread between school, teacher, student, or guardian",
+      "type": "object",
+      "properties": {
+        "institution_id": { "type": "string" },
+        "subject": { "type": "string" },
+        "participants": { "type": "array" },
+        "student_id": { "type": "string" },
+        "created_by": { "type": "string" },
+        "last_message_at": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "closed"] }
+      },
+      "required": ["institution_id", "subject", "participants", "status"]
+    }
+  },
+  "firestore": {
+    "/institutions/{institutionId}": {
+      "schema": "Institution",
+      "description": "Collection of schools/institutions"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles and credentials"
+    },
+    "/students/{studentId}": {
+      "schema": "Student",
+      "description": "Student information documents"
+    },
+    "/staff/{staffId}": {
+      "schema": "Staff",
+      "description": "Staff and teacher profiles"
+    },
+    "/guardians/{guardianId}": {
+      "schema": "Guardian",
+      "description": "Parent and guardian profiles"
+    },
+    "/academic_years/{yearId}": {
+      "schema": "AcademicYear",
+      "description": "Academic years per institution"
+    },
+    "/terms/{termId}": {
+      "schema": "Term",
+      "description": "Terms per academic year"
+    },
+    "/classes/{classId}": {
+      "schema": "Class",
+      "description": "Classes per institution"
+    },
+    "/attendance/{attendanceId}": {
+      "schema": "Attendance",
+      "description": "Daily attendance logs"
+    },
+    "/scores/{scoreId}": {
+      "schema": "Score",
+      "description": "Individual assessment scores"
+    },
+    "/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Staff and admin action items"
+    },
+    "/message_threads/{threadId}": {
+      "schema": "MessageThread",
+      "description": "Parent, teacher, and school conversation threads"
+    }
+  }
+}

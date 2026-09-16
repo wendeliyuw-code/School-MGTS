@@ -1,0 +1,58 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "institution_id", "order": "ASCENDING" },
+        { "fieldPath": "role", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "attendance",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "institution_id", "order": "ASCENDING" },
+        { "fieldPath": "class_id", "order": "ASCENDING" },
+        { "fieldPath": "date", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "scores",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "institution_id", "order": "ASCENDING" },
+        { "fieldPath": "assessment_id", "order": "ASCENDING" },
+        { "fieldPath": "student_id", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "student_invoices",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "institution_id", "order": "ASCENDING" },
+        { "fieldPath": "student_id", "order": "ASCENDING" },
+        { "fieldPath": "term_id", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "tasks",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "institution_id", "order": "ASCENDING" },
+        { "fieldPath": "assigned_to", "order": "ASCENDING" },
+        { "fieldPath": "status", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "messages",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "institution_id", "order": "ASCENDING" },
+        { "fieldPath": "thread_id", "order": "ASCENDING" },
+        { "fieldPath": "created_at", "order": "ASCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}
